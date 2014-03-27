@@ -33,7 +33,7 @@ public class DriveCommandLine implements java.io.Serializable{
    
     GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
         httpTransport, jsonFactory, CLIENT_ID, CLIENT_SECRET, Arrays.asList(DriveScopes.DRIVE))
-        .setAccessType("online")
+        .setAccessType("offline")
         .setApprovalPrompt("auto").build();
     
     String url = flow.newAuthorizationUrl().setRedirectUri(REDIRECT_URI).build();
@@ -43,7 +43,10 @@ public class DriveCommandLine implements java.io.Serializable{
     String code = br.readLine();
     
     GoogleTokenResponse response = flow.newTokenRequest(code).setRedirectUri(REDIRECT_URI).execute();
-    GoogleCredential credential = new GoogleCredential().setFromTokenResponse(response);
+    GoogleCredential credential = new GoogleCredential.Builder().setJsonFactory(jsonFactory)
+    		.setTransport(httpTransport) .setClientSecrets(CLIENT_ID,CLIENT_SECRET).build();
+    credential.setFromTokenResponse(response);
+    
     System.out.println(credential.getAccessToken().toString());
     System.out.println(credential.getRefreshToken());
     
